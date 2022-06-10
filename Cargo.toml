@@ -1,0 +1,6 @@
+[workspace]
+
+members = [
+    "rusty-opengl",
+    "e2e-tests"
+]
