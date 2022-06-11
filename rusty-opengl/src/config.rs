@@ -1,4 +1,3 @@
-use glfw;
 use glfw::Context;
 use std::sync::mpsc::Receiver;
 
@@ -46,6 +45,14 @@ impl Window {
         self.window.set_key_polling(true);
         self.window.set_framebuffer_size_polling(true);
     }
+
+    pub fn load_opengl_func_ptr(&mut self) {
+        gl::load_with(|symbol| self.window.get_proc_address(symbol) as *const _);
+    }
+
+    pub fn is_running_window(&self) -> bool {
+        !self.window.should_close()
+    }
 }
 
 #[cfg(test)]
@@ -55,6 +62,7 @@ mod tests {
     #[test]
     fn config_initial_configuration() {
         let glfw = GlfwConfig::new();
-        let (_window, _events) = glfw.create_window(800, 600, "learn opengl");
+        let (mut window, _events) = glfw.create_window(800, 600, "learn opengl");
+        window.load_opengl_func_ptr();
     }
 }
