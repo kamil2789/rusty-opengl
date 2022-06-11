@@ -3,31 +3,40 @@ use glfw::Context;
 use std::sync::mpsc::Receiver;
 
 pub struct Window {
-    window: glfw::Window
+    window: glfw::Window,
 }
 
 pub struct GlfwConfig {
-    glfw: glfw::Glfw
+    glfw: glfw::Glfw,
 }
 
 #[allow(dead_code)]
 pub struct WindowEvents {
-    events: Receiver<(f64, glfw::WindowEvent)>
+    events: Receiver<(f64, glfw::WindowEvent)>,
 }
 
 impl GlfwConfig {
     pub fn new() -> Self {
         let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
         glfw.window_hint(glfw::WindowHint::ContextVersion(3, 3));
-        glfw.window_hint(glfw::WindowHint::OpenGlProfile(glfw::OpenGlProfileHint::Core));
+        glfw.window_hint(glfw::WindowHint::OpenGlProfile(
+            glfw::OpenGlProfileHint::Core,
+        ));
         glfw.window_hint(glfw::WindowHint::OpenGlForwardCompat(true));
-        GlfwConfig{glfw}
+        GlfwConfig { glfw }
     }
 
-    pub fn create_window(&self, width: u32, height: u32, window_name: &str) -> (Window, WindowEvents) {
-        let (window, events) = self.glfw.create_window(width, height, window_name, glfw::WindowMode::Windowed)
-        .expect("Failed to create GLFW window");
-        (Window{window}, WindowEvents{events})
+    pub fn create_window(
+        &self,
+        width: u32,
+        height: u32,
+        window_name: &str,
+    ) -> (Window, WindowEvents) {
+        let (window, events) = self
+            .glfw
+            .create_window(width, height, window_name, glfw::WindowMode::Windowed)
+            .expect("Failed to create GLFW window");
+        (Window { window }, WindowEvents { events })
     }
 }
 
@@ -41,7 +50,7 @@ impl Window {
 
 #[cfg(test)]
 mod tests {
-    use super::*; 
+    use super::*;
 
     #[test]
     fn config_initial_configuration() {
