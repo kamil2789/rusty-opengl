@@ -60,7 +60,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn config_initial_configuration() {
+    fn test_config_initial_configuration() {
         let glfw = GlfwConfig::new();
         let (mut window, _events) = glfw.create_window(800, 600, "learn opengl");
         window.load_opengl_func_ptr();
