@@ -39,6 +39,7 @@ impl Default for GlfwConfig {
         glfw.window_hint(glfw::WindowHint::OpenGlForwardCompat(true));
         GlfwConfig { glfw }
     }
+
 }
 
 impl Window {
