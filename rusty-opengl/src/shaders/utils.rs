@@ -1,8 +1,6 @@
 use std::fs::OpenOptions;
 use std::io::Read;
 use std::path::Path;
-use std::io::Write;
-use std::fs;
 
 pub fn read_src_from_file(path: &Path) -> Result<String, String> {
     let mut result = String::new();
@@ -25,6 +23,8 @@ pub fn read_src_from_file(path: &Path) -> Result<String, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs;
+    use std::io::Write;
 
     #[test]
     fn test_read_src_from_file_no_file() {
@@ -41,7 +41,8 @@ mod tests {
             .create(true)
             .open(file_name)
             .unwrap();
-        writeln!(file, "{}", text);
+        let write_result = writeln!(file, "{}", text);
+        assert!(write_result.is_ok());
 
         let result = read_src_from_file(Path::new(file_name)).unwrap();
         assert_eq!(result.trim(), text);

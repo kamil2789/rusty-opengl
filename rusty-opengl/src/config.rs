@@ -15,16 +15,6 @@ pub struct WindowEvents {
 }
 
 impl GlfwConfig {
-    pub fn new() -> Self {
-        let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
-        glfw.window_hint(glfw::WindowHint::ContextVersion(3, 3));
-        glfw.window_hint(glfw::WindowHint::OpenGlProfile(
-            glfw::OpenGlProfileHint::Core,
-        ));
-        glfw.window_hint(glfw::WindowHint::OpenGlForwardCompat(true));
-        GlfwConfig { glfw }
-    }
-
     pub fn create_window(
         &self,
         width: u32,
@@ -36,6 +26,18 @@ impl GlfwConfig {
             .create_window(width, height, window_name, glfw::WindowMode::Windowed)
             .expect("Failed to create GLFW window");
         (Window { window }, WindowEvents { events })
+    }
+}
+
+impl Default for GlfwConfig {
+    fn default() -> Self {
+        let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+        glfw.window_hint(glfw::WindowHint::ContextVersion(3, 3));
+        glfw.window_hint(glfw::WindowHint::OpenGlProfile(
+            glfw::OpenGlProfileHint::Core,
+        ));
+        glfw.window_hint(glfw::WindowHint::OpenGlForwardCompat(true));
+        GlfwConfig { glfw }
     }
 }
 
@@ -61,7 +63,7 @@ mod tests {
 
     #[test]
     fn test_config_initial_configuration() {
-        let glfw = GlfwConfig::new();
+        let glfw: GlfwConfig = Default::default();
         let (mut window, _events) = glfw.create_window(800, 600, "learn opengl");
         window.load_opengl_func_ptr();
     }

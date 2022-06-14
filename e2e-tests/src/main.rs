@@ -1,4 +1,4 @@
-use rusty_opengl::shader_file_reader::read_src_from_file;
+use rusty_opengl::shaders::utils::read_src_from_file;
 use std::path::Path;
 
 fn main() {
