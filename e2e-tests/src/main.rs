@@ -1,11 +1,25 @@
-use rusty_opengl::shaders::utils::read_src_from_file;
-use std::path::Path;
+mod shaders;
+
+use crate::shaders::test_shader_program_compilation;
+use rusty_opengl::config::GlfwConfig;
+
+macro_rules! e2e_test {
+    ($func:ident) => {
+        let result;
+        if $func() {
+            result = "PASSED";
+        } else {
+            result = "FAILED";
+        }
+        println!("{} - {}", stringify!($func), result);
+    };
+}
 
 fn main() {
-    let result = read_src_from_file(Path::new("e2e-tests/shaders/simplest.frag"));
-    if result.is_ok() {
-        println!("{}", result.unwrap());
-    } else {
-        println!("{}", result.unwrap_err());
-    }
+    let glfw: GlfwConfig = Default::default();
+    let (mut window, _events) = glfw.create_window(800, 600, "learn opengl");
+    window.set_current();
+    window.load_opengl_func_ptr();
+
+    e2e_test!(test_shader_program_compilation);
 }

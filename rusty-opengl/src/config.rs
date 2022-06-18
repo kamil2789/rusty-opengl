@@ -39,7 +39,6 @@ impl Default for GlfwConfig {
         glfw.window_hint(glfw::WindowHint::OpenGlForwardCompat(true));
         GlfwConfig { glfw }
     }
-
 }
 
 impl Window {
@@ -66,6 +65,7 @@ mod tests {
     fn test_config_initial_configuration() {
         let glfw: GlfwConfig = Default::default();
         let (mut window, _events) = glfw.create_window(800, 600, "learn opengl");
+        window.set_current();
         window.load_opengl_func_ptr();
     }
 }

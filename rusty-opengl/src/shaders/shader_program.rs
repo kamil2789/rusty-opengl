@@ -55,14 +55,14 @@ impl<'s> ShaderProgram<'s> {
             gl::AttachShader(self.shader_program_id, fragment_shader_id);
             gl::LinkProgram(self.shader_program_id);
             let result = ShaderProgram::check_link_status(self.shader_program_id);
-            if result == false {
+            if !result {
                 return false;
             }
             gl::DeleteShader(vertex_shader_id);
             gl::DeleteShader(fragment_shader_id);
         }
 
-        return true;
+        true
     }
 
     pub fn activate(&self) {
@@ -86,9 +86,9 @@ impl<'s> ShaderProgram<'s> {
 
         let status = ShaderProgram::check_compile_status(shader);
         if status {
-            return shader;
+            shader
         } else {
-            return 0;
+            0
         }
     }
 
@@ -98,7 +98,7 @@ impl<'s> ShaderProgram<'s> {
         let mut info_log = Vec::with_capacity(info_length as usize - 1);
         gl::GetShaderiv(shader_id, gl::COMPILE_STATUS, &mut status);
         if status == gl::TRUE as GLint {
-            return true;
+            true
         } else {
             gl::GetShaderInfoLog(
                 shader_id,
@@ -110,7 +110,7 @@ impl<'s> ShaderProgram<'s> {
                 "Shader compilation error\n{}",
                 std::str::from_utf8(&info_log).unwrap()
             );
-            return false;
+            false
         }
     }
 
@@ -120,7 +120,7 @@ impl<'s> ShaderProgram<'s> {
         let mut info_log = Vec::with_capacity(info_length as usize - 1);
         gl::GetProgramiv(shader_program_id, gl::LINK_STATUS, &mut status);
         if status == gl::TRUE as GLint {
-            return true;
+            true
         } else {
             gl::GetProgramInfoLog(
                 shader_program_id,
@@ -132,7 +132,7 @@ impl<'s> ShaderProgram<'s> {
                 "Shader program link error\n{}",
                 std::str::from_utf8(&info_log).unwrap()
             );
-            return false;
+            false
         }
     }
 }
@@ -143,32 +143,4 @@ impl Drop for ShaderProgram<'_> {
             gl::DeleteProgram(self.shader_program_id);
         }
     }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    const VERTEX_SHADER: &str = r#"
-    #version 330 core
-    layout (location = 0) in vec3 aPos;
-    void main() {
-       gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-    }
-    "#;
-
-    const FRAGMENT_SHADER: &str = r#"
-    #version 330 core
-    out vec4 FragColor;
-    void main() {
-       FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
-    }
-    "#;
-
-    //TODO add destructor to unlock the ability to test with multiple glfw
-    // #[test]
-    // fn test_compile_example_shaders() {
-    //     let mut simple_program = ShaderProgram::new(&VERTEX_SHADER, &FRAGMENT_SHADER);
-    //     assert!(simple_program.compile());
-    // }
 }
