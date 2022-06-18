@@ -1,19 +1,8 @@
 mod shaders;
+mod utilities;
 
 use crate::shaders::test_shader_program_compilation;
 use rusty_opengl::config::GlfwConfig;
-
-macro_rules! e2e_test {
-    ($func:ident) => {
-        let result;
-        if $func() {
-            result = "PASSED";
-        } else {
-            result = "FAILED";
-        }
-        println!("{} - {}", stringify!($func), result);
-    };
-}
 
 fn main() {
     let glfw: GlfwConfig = Default::default();
