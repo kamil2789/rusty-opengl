@@ -14,9 +14,9 @@ pub struct WindowEvents {
     events: Receiver<(f64, glfw::WindowEvent)>,
 }
 
-pub fn tmp_set_colors() {
+pub fn set_background_color(red: f32, green: f32, blue: f32) {
     unsafe {
-        gl::ClearColor(0.2, 0.3, 0.3, 1.0);
+        gl::ClearColor(red, green, blue, 1.0);
         gl::Clear(gl::COLOR_BUFFER_BIT);
     }
 }
@@ -69,6 +69,10 @@ impl Window {
 
     pub fn swap_buffers(&mut self) {
         self.window.swap_buffers();
+    }
+
+    pub fn get_framebuffer_size(&self) -> (i32, i32) {
+        self.window.get_framebuffer_size()
     }
 }
 
