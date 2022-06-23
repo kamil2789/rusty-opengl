@@ -8,10 +8,11 @@ enum ShaderType {
     Fragment,
 }
 
-pub struct ShaderProgram<'s> {
+pub struct ShaderProgram {
     shader_program_id: u32,
-    vert_src: &'s str,
-    frag_src: &'s str,
+    vert_src: String,
+    frag_src: String,
+    is_compiled: bool,
 }
 
 fn shader_type_as_gluint(shader_type: ShaderType) -> GLuint {
@@ -21,25 +22,32 @@ fn shader_type_as_gluint(shader_type: ShaderType) -> GLuint {
     }
 }
 
-impl<'s> ShaderProgram<'s> {
-    pub fn new(vert_src: &'s str, frag_src: &'s str) -> Self {
+impl ShaderProgram {
+    pub fn new(vert_src: &str, frag_src: &str) -> Self {
         let id = unsafe { gl::CreateProgram() };
         ShaderProgram {
             shader_program_id: id,
-            vert_src,
-            frag_src,
+            vert_src: String::from(vert_src),
+            frag_src: String::from(frag_src),
+            is_compiled: false,
         }
     }
 
-    pub fn set_fragment_shader(&mut self, src: &'s str) {
-        self.frag_src = src;
+    pub fn set_fragment_shader(&mut self, src: &str) {
+        self.frag_src = String::from(src);
+        self.is_compiled = false;
     }
 
-    pub fn set_vertex_shader(&mut self, src: &'s str) {
-        self.vert_src = src;
+    pub fn set_vertex_shader(&mut self, src: &str) {
+        self.vert_src = String::from(src);
+        self.is_compiled = false;
     }
 
     pub fn compile(&mut self) -> bool {
+        if self.is_compiled {
+            return true;
+        }
+
         unsafe {
             let vertex_shader_id = self.compile_shader(ShaderType::Vertex);
             if vertex_shader_id == 0 {
@@ -62,6 +70,7 @@ impl<'s> ShaderProgram<'s> {
             gl::DeleteShader(fragment_shader_id);
         }
 
+        self.is_compiled = true;
         true
     }
 
@@ -71,10 +80,14 @@ impl<'s> ShaderProgram<'s> {
         }
     }
 
-    fn match_shader_src(&self, shader_type: ShaderType) -> &str {
+    pub fn is_compiled(&self) -> bool {
+        self.is_compiled
+    }
+
+    fn match_shader_src(&self, shader_type: ShaderType) -> &String {
         match shader_type {
-            ShaderType::Vertex => self.vert_src,
-            ShaderType::Fragment => self.frag_src,
+            ShaderType::Vertex => &self.vert_src,
+            ShaderType::Fragment => &self.frag_src,
         }
     }
 
@@ -137,7 +150,7 @@ impl<'s> ShaderProgram<'s> {
     }
 }
 
-impl Drop for ShaderProgram<'_> {
+impl Drop for ShaderProgram {
     fn drop(&mut self) {
         unsafe {
             gl::DeleteProgram(self.shader_program_id);

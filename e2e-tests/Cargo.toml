@@ -7,3 +7,5 @@ edition = "2021"
 
 [dependencies]
 rusty-opengl = { path = "../rusty-opengl" }
+glfw = "0.45.0"
+gl = "0.14.0"

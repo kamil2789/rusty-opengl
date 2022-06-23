@@ -14,6 +14,13 @@ pub struct WindowEvents {
     events: Receiver<(f64, glfw::WindowEvent)>,
 }
 
+pub fn tmp_set_colors() {
+    unsafe {
+        gl::ClearColor(0.2, 0.3, 0.3, 1.0);
+        gl::Clear(gl::COLOR_BUFFER_BIT);
+    }
+}
+
 impl GlfwConfig {
     pub fn create_window(
         &self,
@@ -26,6 +33,10 @@ impl GlfwConfig {
             .create_window(width, height, window_name, glfw::WindowMode::Windowed)
             .expect("Failed to create GLFW window");
         (Window { window }, WindowEvents { events })
+    }
+
+    pub fn poll_events(&mut self) {
+        self.glfw.poll_events();
     }
 }
 
@@ -54,6 +65,10 @@ impl Window {
 
     pub fn is_running_window(&self) -> bool {
         !self.window.should_close()
+    }
+
+    pub fn swap_buffers(&mut self) {
+        self.window.swap_buffers();
     }
 }
 

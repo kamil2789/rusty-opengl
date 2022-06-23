@@ -6,12 +6,6 @@ static DELIMETER: char = '\\';
 #[cfg(unix)]
 static DELIMETER: char = '/';
 
-pub fn get_current_dir_name() -> String {
-    let full_path = env::current_dir().unwrap();
-    let (_, dir) = full_path.to_str().unwrap().rsplit_once(DELIMETER).unwrap();
-    String::from(dir)
-}
-
 #[macro_export]
 macro_rules! e2e_test {
     ($func:ident $($args:expr),*) => {
@@ -23,6 +17,12 @@ macro_rules! e2e_test {
         }
         println!("{} - {}", stringify!($func), result);
     };
+}
+
+pub fn get_current_dir_name() -> String {
+    let full_path = env::current_dir().unwrap();
+    let (_, dir) = full_path.to_str().unwrap().rsplit_once(DELIMETER).unwrap();
+    String::from(dir)
 }
 
 #[cfg(test)]
