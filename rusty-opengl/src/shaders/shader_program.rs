@@ -1,4 +1,4 @@
-use gl::types::{GLchar, GLint, GLuint};
+use gl::types::GLuint;
 use std::ffi::CString;
 use std::ptr;
 
@@ -23,6 +23,7 @@ fn shader_type_as_gluint(shader_type: ShaderType) -> GLuint {
 }
 
 impl ShaderProgram {
+    #[must_use]
     pub fn new(vert_src: &str, frag_src: &str) -> Self {
         let id = unsafe { gl::CreateProgram() };
         ShaderProgram {
@@ -80,6 +81,7 @@ impl ShaderProgram {
         }
     }
 
+    #[must_use]
     pub fn is_compiled(&self) -> bool {
         self.is_compiled
     }
@@ -106,18 +108,18 @@ impl ShaderProgram {
     }
 
     unsafe fn check_compile_status(shader_id: GLuint) -> bool {
-        let mut status = gl::FALSE as GLint;
-        let info_length: i32 = 512;
-        let mut info_log = Vec::with_capacity(info_length as usize - 1);
+        let mut status = i32::from(gl::TRUE);
+        let info_length: usize = 512;
+        let mut info_log: Vec<u8> = Vec::with_capacity(info_length - 1);
         gl::GetShaderiv(shader_id, gl::COMPILE_STATUS, &mut status);
-        if status == gl::TRUE as GLint {
+        if status == i32::from(gl::TRUE) {
             true
         } else {
             gl::GetShaderInfoLog(
                 shader_id,
-                info_length,
+                info_length.try_into().unwrap(),
                 ptr::null_mut(),
-                info_log.as_mut_ptr() as *mut GLchar,
+                info_log.as_mut_ptr().cast::<i8>(),
             );
             println!(
                 "Shader compilation error\n{}",
@@ -128,18 +130,18 @@ impl ShaderProgram {
     }
 
     unsafe fn check_link_status(shader_program_id: GLuint) -> bool {
-        let mut status = gl::FALSE as GLint;
-        let info_length: i32 = 512;
-        let mut info_log = Vec::with_capacity(info_length as usize - 1);
+        let mut status = i32::from(gl::FALSE);
+        let info_length: usize = 512;
+        let mut info_log: Vec<u8> = Vec::with_capacity(info_length - 1);
         gl::GetProgramiv(shader_program_id, gl::LINK_STATUS, &mut status);
-        if status == gl::TRUE as GLint {
+        if status == i32::from(gl::TRUE) {
             true
         } else {
             gl::GetProgramInfoLog(
                 shader_program_id,
-                info_length,
+                info_length.try_into().unwrap(),
                 ptr::null_mut(),
-                info_log.as_mut_ptr() as *mut GLchar,
+                info_log.as_mut_ptr().cast::<i8>(),
             );
             println!(
                 "Shader program link error\n{}",

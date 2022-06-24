@@ -2,22 +2,29 @@ use std::fs::OpenOptions;
 use std::io::Read;
 use std::path::Path;
 
+/// # Errors
+///
+/// Will return `Err` if `filename` does not exist or the user does not have
+/// permission to read it.
+/// # Panics
+///
+/// Will panic if file has an invalid format
 pub fn read_src_from_file(path: &Path) -> Result<String, String> {
     let mut result = String::new();
 
     if path.is_file() {
         let mut file = OpenOptions::new()
             .read(true)
-            .open(path.to_str().unwrap())
+            .open(path.to_str().unwrap_or(""))
             .unwrap();
         file.read_to_string(&mut result).unwrap();
-        return Ok(result);
+        Ok(result)
+    } else {
+        Err(format!(
+            "File could not be opened, path: {}",
+            path.to_str().unwrap()
+        ))
     }
-
-    Err(format!(
-        "File could not be opened, path: {}",
-        path.to_str().unwrap()
-    ))
 }
 
 #[cfg(test)]

@@ -1,5 +1,4 @@
-use gl::types::{GLfloat, GLsizei, GLsizeiptr};
-use std::ffi::c_void;
+use gl::types::GLfloat;
 
 use crate::shaders::shader_program::ShaderProgram;
 
@@ -10,6 +9,7 @@ pub struct Vertices {
 impl Vertices {
     const SIZE: usize = 9;
 
+    #[must_use]
     pub fn new(data: [f32; 6]) -> Self {
         Vertices {
             vert: [
@@ -27,6 +27,7 @@ pub struct Triangle2d {
 }
 
 impl Triangle2d {
+    #[must_use]
     pub fn new(vertices: Vertices, shader: Option<ShaderProgram>) -> Self {
         Triangle2d {
             vao: 0,
@@ -45,7 +46,9 @@ impl Triangle2d {
 
     pub fn draw(&self) {
         if self.shader.is_some() {
-            self.shader.as_ref().unwrap().activate();
+            if let Some(shader_ref) = self.shader.as_ref() {
+                shader_ref.activate();
+            }
         }
         unsafe {
             gl::BindVertexArray(self.vao);
@@ -62,17 +65,18 @@ impl Triangle2d {
             gl::BindBuffer(gl::ARRAY_BUFFER, self.vbo);
             gl::BufferData(
                 gl::ARRAY_BUFFER,
-                (Vertices::SIZE * std::mem::size_of::<GLfloat>()) as GLsizeiptr,
-                &self.vertices.vert[0] as *const f32 as *const c_void,
+                (Vertices::SIZE * std::mem::size_of::<GLfloat>())
+                    .try_into()
+                    .unwrap(),
+                self.vertices.vert.as_ptr().cast::<std::ffi::c_void>(),
                 gl::STATIC_DRAW,
             );
-
             gl::VertexAttribPointer(
                 0,
                 3,
                 gl::FLOAT,
                 gl::FALSE,
-                3 * std::mem::size_of::<GLfloat>() as GLsizei,
+                (3 * std::mem::size_of::<GLfloat>()).try_into().unwrap(),
                 std::ptr::null(),
             );
             gl::EnableVertexAttribArray(0);

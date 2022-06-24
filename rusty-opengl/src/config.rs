@@ -5,7 +5,7 @@ pub struct Window {
     window: glfw::Window,
 }
 
-pub struct GlfwConfig {
+pub struct Glfw {
     glfw: glfw::Glfw,
 }
 
@@ -21,7 +21,8 @@ pub fn set_background_color(red: f32, green: f32, blue: f32) {
     }
 }
 
-impl GlfwConfig {
+impl Glfw {
+    #[must_use]
     pub fn create_window(
         &self,
         width: u32,
@@ -40,7 +41,7 @@ impl GlfwConfig {
     }
 }
 
-impl Default for GlfwConfig {
+impl Default for Glfw {
     fn default() -> Self {
         let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
         glfw.window_hint(glfw::WindowHint::ContextVersion(3, 3));
@@ -48,7 +49,7 @@ impl Default for GlfwConfig {
             glfw::OpenGlProfileHint::Core,
         ));
         glfw.window_hint(glfw::WindowHint::OpenGlForwardCompat(true));
-        GlfwConfig { glfw }
+        Glfw { glfw }
     }
 }
 
@@ -60,7 +61,7 @@ impl Window {
     }
 
     pub fn load_opengl_func_ptr(&mut self) {
-        gl::load_with(|symbol| self.window.get_proc_address(symbol) as *const _);
+        gl::load_with(|symbol| self.window.get_proc_address(symbol).cast());
     }
 
     pub fn is_running_window(&self) -> bool {
@@ -82,7 +83,7 @@ mod tests {
 
     #[test]
     fn test_config_initial_configuration() {
-        let glfw: GlfwConfig = Default::default();
+        let glfw: Glfw = Default::default();
         let (mut window, _events) = glfw.create_window(800, 600, "learn opengl");
         window.set_current();
         window.load_opengl_func_ptr();
