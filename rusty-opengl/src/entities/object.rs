@@ -22,8 +22,8 @@ impl Vertices {
 pub struct Triangle2d {
     vao: u32,
     vbo: u32,
-    vertices: Vertices,
-    shader: Option<ShaderProgram>,
+    pub vertices: Vertices,
+    pub shader: Option<ShaderProgram>,
 }
 
 impl Triangle2d {

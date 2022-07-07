@@ -8,6 +8,13 @@ enum ShaderType {
     Fragment,
 }
 
+pub struct Color {
+    pub r: f32,
+    pub g: f32,
+    pub b: f32,
+    pub a: f32
+}
+
 pub struct ShaderProgram {
     shader_program_id: u32,
     vert_src: String,
@@ -81,9 +88,31 @@ impl ShaderProgram {
         }
     }
 
+    pub fn deactivae(&self) {
+        unsafe {
+            gl::UseProgram(0);
+        } 
+    }
+
     #[must_use]
     pub fn is_compiled(&self) -> bool {
         self.is_compiled
+    }
+
+    pub fn set_uniform4f_variable(&self, variable: &str, value: Color) -> bool {
+        self.activate();
+        unsafe {
+            let c_variable = CString::new(variable).unwrap();
+            let uniform_location = gl::GetUniformLocation(self.shader_program_id, c_variable.as_ptr());
+            if uniform_location == -1 {
+                self.deactivae();
+                return false;
+            }
+
+            gl::Uniform4f(uniform_location, value.r, value.g, value.b, value.a);
+            self.deactivae();
+            true
+        }
     }
 
     fn match_shader_src(&self, shader_type: ShaderType) -> &String {

@@ -14,7 +14,7 @@ def get_path_to_templates():
 
 TEMPLATE_IMAGE_NAME = sys.argv[1]
 TEMPLATE_IMAGE_PATH = get_path_to_templates() + TEMPLATE_IMAGE_NAME
-GENERATED_IMAGE_PATH = "result_" + TEMPLATE_IMAGE_NAME
+GENERATED_IMAGE_PATH = "test_result_" + TEMPLATE_IMAGE_NAME
 
 
 def transform_vertically(path: str):
