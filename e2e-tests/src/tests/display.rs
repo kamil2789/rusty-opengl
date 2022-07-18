@@ -3,26 +3,32 @@ use crate::tools::utilities::create_shader_program;
 use rusty_opengl::config::set_background_color;
 use rusty_opengl::config::Glfw;
 use rusty_opengl::config::Window;
-use rusty_opengl::entities::object::Triangle2d;
-use rusty_opengl::entities::object::Vertices;
 use rusty_opengl::shaders::shader_program::Color;
+use rusty_opengl::polygons::triangle::Vertices;
+use rusty_opengl::polygons::triangle::Triangle;
+use rusty_opengl::entities::object::Object;
+use rusty_opengl::entities::Drawable;
 
 pub fn test_draw_two_triangles(glfw: &mut Glfw, window: &mut Window) -> bool {
     let right_shader_program = create_shader_program("simplest.vert", "simplest.frag");
     let right_vertices = Vertices::new([-0.1, -0.5, 0.5, -0.5, 0.0, 0.5]);
 
-    let mut right_triangle = Triangle2d::new(right_vertices, Some(right_shader_program));
-    right_triangle.init();
+    let right_triangle = Triangle::new(right_vertices);
+    let mut orange_triangle = Object::new(Box::new(right_triangle), Some(right_shader_program), None);
 
     let left_shader_program = create_shader_program("simplest.vert", "simplestGreen.frag");
     let left_vertices = Vertices::new([-0.9, 0.0, -0.5, 0.5, -0.5, 0.0]);
-    let mut left_triangle = Triangle2d::new(left_vertices, Some(left_shader_program));
-    left_triangle.init();
+    let left_triangle = Triangle::new(left_vertices);
+
+    let mut green_triangle = Object::new(Box::new(left_triangle), Some(left_shader_program), None);
+
+    orange_triangle.init();
+    green_triangle.init();
 
     set_background_color(0.2, 0.4, 0.6);
 
-    right_triangle.draw();
-    left_triangle.draw();
+    orange_triangle.draw();
+    green_triangle.draw();
     window.swap_buffers();
     glfw.poll_events();
 
@@ -34,10 +40,11 @@ pub fn test_draw_triangle_with_color_from_uniform(glfw: &mut Glfw, window: &mut 
     let shader_program = create_shader_program("simplest.vert", "uniform.frag");
     let vertices = Vertices::new([-0.1, -0.5, 0.5, -0.5, 0.0, 0.5]);
 
-    let mut triangle = Triangle2d::new(vertices, Some(shader_program));
-    triangle.init();
+    let triangle = Triangle::new(vertices);
+    let mut red_triangle = Object::new(Box::new(triangle), Some(shader_program), None);
+    red_triangle.init();
 
-    let set_result = triangle.shader.as_ref().unwrap().set_uniform4f_variable(
+    let set_result = red_triangle.shader.as_ref().unwrap().set_uniform4f_variable(
         "ourColor",
         &Color {
             r: 1.0,
@@ -50,7 +57,7 @@ pub fn test_draw_triangle_with_color_from_uniform(glfw: &mut Glfw, window: &mut 
 
     set_background_color(0.2, 0.4, 0.6);
 
-    triangle.draw();
+    red_triangle.draw();
     window.swap_buffers();
     glfw.poll_events();
 
