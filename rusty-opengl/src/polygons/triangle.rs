@@ -9,7 +9,7 @@ pub struct Vertices {
 pub struct Triangle {
     vao: u32,
     vbo: u32,
-    pub vertices: Vertices,
+    vertices: Vertices,
 }
 
 impl Vertices {
@@ -31,7 +31,7 @@ impl Triangle {
         Triangle {
             vao: 0,
             vbo: 0,
-            vertices
+            vertices,
         }
     }
 
@@ -50,6 +50,7 @@ impl Triangle {
                 self.vertices.vert.as_ptr().cast::<std::ffi::c_void>(),
                 gl::STATIC_DRAW,
             );
+
             gl::VertexAttribPointer(
                 0,
                 3,
@@ -77,6 +78,15 @@ impl Drawable for Triangle {
         unsafe {
             gl::BindVertexArray(self.vao);
             gl::DrawArrays(gl::TRIANGLES, 0, 3);
+        }
+    }
+}
+
+impl Drop for Triangle {
+    fn drop(&mut self) {
+        unsafe {
+            gl::DeleteVertexArrays(1, &self.vao);
+            gl::DeleteBuffers(1, &self.vbo);
         }
     }
 }

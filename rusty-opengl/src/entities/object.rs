@@ -1,20 +1,24 @@
-use crate::shaders::shader_program::ShaderProgram;
 use crate::entities::texture::Texture;
 use crate::entities::Drawable;
+use crate::shaders::shader_program::ShaderProgram;
 
 pub struct Object {
     pub polygon: Box<dyn Drawable>,
     pub shader: Option<ShaderProgram>,
-    pub texture: Option<Texture>
+    pub texture: Option<Texture>,
 }
 
 impl Object {
     #[must_use]
-    pub fn new(polygon: Box<dyn Drawable>, shader: Option<ShaderProgram>, texture: Option<Texture>) -> Self {
+    pub fn new(
+        polygon: Box<dyn Drawable>,
+        shader: Option<ShaderProgram>,
+        texture: Option<Texture>,
+    ) -> Self {
         Object {
             polygon,
             shader,
-            texture
+            texture,
         }
     }
 }

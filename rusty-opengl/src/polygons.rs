@@ -1,3 +1,2 @@
-pub mod triangle;
 pub mod reactangle;
-
+pub mod triangle;
