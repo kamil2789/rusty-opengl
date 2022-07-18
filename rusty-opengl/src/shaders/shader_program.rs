@@ -12,7 +12,7 @@ pub struct Color {
     pub r: f32,
     pub g: f32,
     pub b: f32,
-    pub a: f32
+    pub a: f32,
 }
 
 pub struct ShaderProgram {
@@ -88,10 +88,10 @@ impl ShaderProgram {
         }
     }
 
-    pub fn deactivae(&self) {
+    pub fn deactivate() {
         unsafe {
             gl::UseProgram(0);
-        } 
+        }
     }
 
     #[must_use]
@@ -99,18 +99,23 @@ impl ShaderProgram {
         self.is_compiled
     }
 
-    pub fn set_uniform4f_variable(&self, variable: &str, value: Color) -> bool {
+    /// # Panics
+    ///
+    /// Will panic if provided string is invalid
+    #[must_use]
+    pub fn set_uniform4f_variable(&self, variable: &str, value: &Color) -> bool {
         self.activate();
         unsafe {
             let c_variable = CString::new(variable).unwrap();
-            let uniform_location = gl::GetUniformLocation(self.shader_program_id, c_variable.as_ptr());
+            let uniform_location =
+                gl::GetUniformLocation(self.shader_program_id, c_variable.as_ptr());
             if uniform_location == -1 {
-                self.deactivae();
+                ShaderProgram::deactivate();
                 return false;
             }
 
             gl::Uniform4f(uniform_location, value.r, value.g, value.b, value.a);
-            self.deactivae();
+            ShaderProgram::deactivate();
             true
         }
     }

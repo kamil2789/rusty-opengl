@@ -3,7 +3,10 @@ use rusty_opengl::config::Window;
 use std::process::Command;
 
 pub fn check_images_equality(window: &Window, template_image_name: &str) -> bool {
-    save_screen_as_img_png(window, &(String::from("test_result_") + template_image_name));
+    save_screen_as_img_png(
+        window,
+        &(String::from("test_result_") + template_image_name),
+    );
 
     let output = Command::new("python")
         .arg(get_path_to_python_scripts() + "compare_images.py")
