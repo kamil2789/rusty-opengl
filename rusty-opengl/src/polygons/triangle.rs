@@ -1,5 +1,4 @@
 use gl::types::GLfloat;
-
 use crate::entities::Drawable;
 
 pub struct Vertices {
@@ -35,13 +34,39 @@ impl Triangle {
         }
     }
 
-    unsafe fn init_array_buffer(&mut self) {
-        if self.vao == 0 || self.vbo == 0 {
-            gl::GenVertexArrays(1, &mut self.vao);
-            gl::GenBuffers(1, &mut self.vbo);
-            gl::BindVertexArray(self.vao);
+    fn init_array_buffer(&mut self) {
+        self.generate_buffers();
+        self.bind();
+        self.buffer_data();
+        Triangle::set_attribute_ptr();
+        Triangle::unbind();
+    }
 
+    fn generate_buffers(&mut self) {
+        unsafe {
+            if self.vao == 0 || self.vbo == 0 {
+                gl::GenVertexArrays(1, &mut self.vao);
+                gl::GenBuffers(1, &mut self.vbo);
+            }
+        }
+    }
+
+    fn bind(&self) {
+        unsafe {
+            gl::BindVertexArray(self.vao);
             gl::BindBuffer(gl::ARRAY_BUFFER, self.vbo);
+        }
+    }
+
+    fn unbind() {
+        unsafe {
+            gl::BindBuffer(gl::ARRAY_BUFFER, 0);
+            gl::BindVertexArray(0);
+        }
+    }
+
+    fn buffer_data(&self) {
+        unsafe {
             gl::BufferData(
                 gl::ARRAY_BUFFER,
                 (Vertices::SIZE * std::mem::size_of::<GLfloat>())
@@ -50,7 +75,11 @@ impl Triangle {
                 self.vertices.vert.as_ptr().cast::<std::ffi::c_void>(),
                 gl::STATIC_DRAW,
             );
+        }
+    }
 
+    fn set_attribute_ptr() {
+        unsafe {
             gl::VertexAttribPointer(
                 0,
                 3,
@@ -60,18 +89,13 @@ impl Triangle {
                 std::ptr::null(),
             );
             gl::EnableVertexAttribArray(0);
-
-            gl::BindBuffer(gl::ARRAY_BUFFER, 0);
-            gl::BindVertexArray(0);
         }
     }
 }
 
 impl Drawable for Triangle {
     fn init(&mut self) {
-        unsafe {
-            self.init_array_buffer();
-        }
+        self.init_array_buffer();
     }
 
     fn draw(&self) {
@@ -81,7 +105,7 @@ impl Drawable for Triangle {
         }
     }
 
-    fn set_vertices(&mut self, vertices: &Vec<f32>) {
+    fn set_vertices(&mut self, vertices: &[f32]) {
         if vertices.len() >= 2 {
             self.vertices.vert[0] = vertices[0];
             self.vertices.vert[1] = vertices[1];
@@ -99,22 +123,9 @@ impl Drawable for Triangle {
     }
 
     fn recalculate(&mut self) {
-        unsafe {
-            gl::BindVertexArray(self.vao);
-
-            gl::BindBuffer(gl::ARRAY_BUFFER, self.vbo);
-            gl::BufferData(
-                gl::ARRAY_BUFFER,
-                (Vertices::SIZE * std::mem::size_of::<GLfloat>())
-                    .try_into()
-                    .unwrap(),
-                self.vertices.vert.as_ptr().cast::<std::ffi::c_void>(),
-                gl::STATIC_DRAW,
-            );
-
-            gl::BindBuffer(gl::ARRAY_BUFFER, 0);
-            gl::BindVertexArray(0);
-        }
+        self.bind();
+        self.buffer_data();
+        Triangle::unbind();
     }
 }
 

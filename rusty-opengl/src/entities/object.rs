@@ -23,19 +23,19 @@ impl Object {
         }
     }
 
+    /// # Panics
     pub fn set_uniform_var(&self, name: &str, color: &Color) {
         if self.shader.is_some() {
             let _result = self
                 .shader
                 .as_ref()
                 .unwrap()
-                .set_uniform4f_variable(name, &color);
+                .set_uniform4f_variable(name, color);
         }
     }
-}
 
-impl Drawable for Object {
-    fn init(&mut self) {
+    /// # Panics
+    pub fn init(&mut self) {
         self.polygon.init();
         if self.shader.is_some() {
             self.shader.as_mut().unwrap().compile();
@@ -46,7 +46,7 @@ impl Drawable for Object {
         }
     }
 
-    fn draw(&self) {
+    pub fn render(&self) {
         if self.shader.is_some() {
             if let Some(shader_ref) = self.shader.as_ref() {
                 shader_ref.activate();
@@ -60,13 +60,5 @@ impl Drawable for Object {
         }
 
         self.polygon.draw();
-    }
-
-    fn set_vertices(&mut self, vertices: &Vec<f32>) {
-        self.polygon.set_vertices(&vertices);
-    }
-
-    fn recalculate(&mut self) {
-        self.polygon.recalculate();
     }
 }

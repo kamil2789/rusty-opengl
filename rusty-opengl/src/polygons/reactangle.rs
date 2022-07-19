@@ -105,7 +105,7 @@ impl Drawable for Reactangle {
         }
     }
 
-    fn set_vertices(&mut self, vertices: &Vec<f32>) {
+    fn set_vertices(&mut self, vertices: &[f32]) {
         if vertices.len() >= 2 {
             self.vertices.vert[0] = vertices[0];
             self.vertices.vert[1] = vertices[1];

@@ -4,7 +4,6 @@ use rusty_opengl::config::set_background_color;
 use rusty_opengl::config::Glfw;
 use rusty_opengl::config::Window;
 use rusty_opengl::entities::object::Object;
-use rusty_opengl::entities::Drawable;
 use rusty_opengl::polygons::reactangle;
 use rusty_opengl::polygons::reactangle::Reactangle;
 use rusty_opengl::polygons::triangle;
@@ -30,8 +29,8 @@ pub fn test_draw_two_triangles(glfw: &mut Glfw, window: &mut Window) -> bool {
 
     set_background_color(0.2, 0.4, 0.6);
 
-    orange_triangle.draw();
-    green_triangle.draw();
+    orange_triangle.render();
+    green_triangle.render();
     window.swap_buffers();
     glfw.poll_events();
 
@@ -64,7 +63,7 @@ pub fn test_draw_triangle_with_color_from_uniform(glfw: &mut Glfw, window: &mut 
 
     set_background_color(0.2, 0.4, 0.6);
 
-    red_triangle.draw();
+    red_triangle.render();
     window.swap_buffers();
     glfw.poll_events();
 
@@ -97,7 +96,7 @@ pub fn test_draw_reactangle(glfw: &mut Glfw, window: &mut Window) -> bool {
 
     set_background_color(0.1, 0.2, 0.2);
 
-    blue_reactangle.draw();
+    blue_reactangle.render();
     window.swap_buffers();
     glfw.poll_events();
 

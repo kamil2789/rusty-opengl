@@ -1,9 +1,7 @@
 use crate::tools::utilities::create_shader_program;
-use rusty_opengl::config::set_background_color;
-use rusty_opengl::config::Glfw;
 use rusty_opengl::config::Window;
+use rusty_opengl::config::{set_background_color, Glfw};
 use rusty_opengl::entities::object::Object;
-use rusty_opengl::entities::Drawable;
 use rusty_opengl::polygons::triangle::Triangle;
 use rusty_opengl::polygons::triangle::Vertices;
 use rusty_opengl::shaders::shader_program::Color;
@@ -29,9 +27,10 @@ pub fn moving_triangle(glfw: &mut Glfw, window: &mut Window) {
     let mut is_rising = false;
     while window.is_running_window() {
         set_background_color(0.2, 0.4, 0.6);
-        red_triangle.set_vertices(&vertices_in_move);
-        red_triangle.recalculate();
-        red_triangle.draw();
+        red_triangle.polygon.set_vertices(&vertices_in_move);
+        red_triangle.polygon.recalculate();
+        red_triangle.render();
+
         window.swap_buffers();
         glfw.poll_events();
 
