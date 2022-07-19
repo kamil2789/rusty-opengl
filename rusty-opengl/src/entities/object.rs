@@ -1,5 +1,6 @@
 use crate::entities::texture::Texture;
 use crate::entities::Drawable;
+use crate::shaders::shader_program::Color;
 use crate::shaders::shader_program::ShaderProgram;
 
 pub struct Object {
@@ -19,6 +20,16 @@ impl Object {
             polygon,
             shader,
             texture,
+        }
+    }
+
+    pub fn set_uniform_var(&self, name: &str, color: &Color) {
+        if self.shader.is_some() {
+            let _result = self
+                .shader
+                .as_ref()
+                .unwrap()
+                .set_uniform4f_variable(name, &color);
         }
     }
 }
@@ -49,5 +60,13 @@ impl Drawable for Object {
         }
 
         self.polygon.draw();
+    }
+
+    fn set_vertices(&mut self, vertices: &Vec<f32>) {
+        self.polygon.set_vertices(&vertices);
+    }
+
+    fn recalculate(&mut self) {
+        self.polygon.recalculate();
     }
 }

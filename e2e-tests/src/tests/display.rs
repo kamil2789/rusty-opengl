@@ -5,10 +5,10 @@ use rusty_opengl::config::Glfw;
 use rusty_opengl::config::Window;
 use rusty_opengl::entities::object::Object;
 use rusty_opengl::entities::Drawable;
-use rusty_opengl::polygons::triangle::Triangle;
-use rusty_opengl::polygons::triangle;
 use rusty_opengl::polygons::reactangle;
 use rusty_opengl::polygons::reactangle::Reactangle;
+use rusty_opengl::polygons::triangle;
+use rusty_opengl::polygons::triangle::Triangle;
 use rusty_opengl::shaders::shader_program::Color;
 
 pub fn test_draw_two_triangles(glfw: &mut Glfw, window: &mut Window) -> bool {
@@ -81,18 +81,18 @@ pub fn test_draw_reactangle(glfw: &mut Glfw, window: &mut Window) -> bool {
     blue_reactangle.init();
 
     let set_result = blue_reactangle
-    .shader
-    .as_ref()
-    .unwrap()
-    .set_uniform4f_variable(
-        "ourColor",
-        &Color {
-            r: 0.0,
-            g: 0.0,
-            b: 1.0,
-            a: 1.0,
-        },
-    );
+        .shader
+        .as_ref()
+        .unwrap()
+        .set_uniform4f_variable(
+            "ourColor",
+            &Color {
+                r: 0.0,
+                g: 0.0,
+                b: 1.0,
+                a: 1.0,
+            },
+        );
     assert!(set_result);
 
     set_background_color(0.1, 0.2, 0.2);

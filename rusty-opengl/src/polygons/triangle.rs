@@ -9,7 +9,7 @@ pub struct Vertices {
 pub struct Triangle {
     vao: u32,
     vbo: u32,
-    vertices: Vertices,
+    pub vertices: Vertices,
 }
 
 impl Vertices {
@@ -78,6 +78,42 @@ impl Drawable for Triangle {
         unsafe {
             gl::BindVertexArray(self.vao);
             gl::DrawArrays(gl::TRIANGLES, 0, 3);
+        }
+    }
+
+    fn set_vertices(&mut self, vertices: &Vec<f32>) {
+        if vertices.len() >= 2 {
+            self.vertices.vert[0] = vertices[0];
+            self.vertices.vert[1] = vertices[1];
+        }
+
+        if vertices.len() >= 4 {
+            self.vertices.vert[2] = vertices[2];
+            self.vertices.vert[3] = vertices[3];
+        }
+
+        if vertices.len() >= 6 {
+            self.vertices.vert[4] = vertices[4];
+            self.vertices.vert[5] = vertices[5];
+        }
+    }
+
+    fn recalculate(&mut self) {
+        unsafe {
+            gl::BindVertexArray(self.vao);
+
+            gl::BindBuffer(gl::ARRAY_BUFFER, self.vbo);
+            gl::BufferData(
+                gl::ARRAY_BUFFER,
+                (Vertices::SIZE * std::mem::size_of::<GLfloat>())
+                    .try_into()
+                    .unwrap(),
+                self.vertices.vert.as_ptr().cast::<std::ffi::c_void>(),
+                gl::STATIC_DRAW,
+            );
+
+            gl::BindBuffer(gl::ARRAY_BUFFER, 0);
+            gl::BindVertexArray(0);
         }
     }
 }

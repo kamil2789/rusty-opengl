@@ -20,7 +20,8 @@ impl Vertices {
     pub fn new(data: [f32; 8]) -> Self {
         Vertices {
             vert: [
-                data[0], data[1], 0.0, data[2], data[3], 0.0, data[4], data[5], 0.0, data[6], data[7], 0.0
+                data[0], data[1], 0.0, data[2], data[3], 0.0, data[4], data[5], 0.0, data[6],
+                data[7], 0.0,
             ],
         }
     }
@@ -66,7 +67,7 @@ impl Reactangle {
     unsafe fn set_array_buffer(&mut self) {
         gl::BindBuffer(gl::ARRAY_BUFFER as u32, self.vbo);
         gl::BufferData(
-            gl::ARRAY_BUFFER  as u32,
+            gl::ARRAY_BUFFER as u32,
             (Vertices::SIZE * std::mem::size_of::<GLfloat>())
                 .try_into()
                 .unwrap(),
@@ -76,13 +77,10 @@ impl Reactangle {
     }
 
     unsafe fn set_element_array_buffer(&mut self) {
-        let indices: [u32; 6] = [
-            0, 1, 3,
-            1, 2, 3 
-        ];
+        let indices: [u32; 6] = [0, 1, 3, 1, 2, 3];
         gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER as u32, self.ebo);
         gl::BufferData(
-            gl::ELEMENT_ARRAY_BUFFER  as u32,
+            gl::ELEMENT_ARRAY_BUFFER as u32,
             (indices.len() * std::mem::size_of::<GLfloat>())
                 .try_into()
                 .unwrap(),
@@ -106,6 +104,30 @@ impl Drawable for Reactangle {
             gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_INT, std::ptr::null());
         }
     }
+
+    fn set_vertices(&mut self, vertices: &Vec<f32>) {
+        if vertices.len() >= 2 {
+            self.vertices.vert[0] = vertices[0];
+            self.vertices.vert[1] = vertices[1];
+        }
+
+        if vertices.len() >= 4 {
+            self.vertices.vert[2] = vertices[2];
+            self.vertices.vert[3] = vertices[3];
+        }
+
+        if vertices.len() >= 6 {
+            self.vertices.vert[4] = vertices[4];
+            self.vertices.vert[5] = vertices[5];
+        }
+
+        if vertices.len() >= 8 {
+            self.vertices.vert[6] = vertices[6];
+            self.vertices.vert[7] = vertices[7];
+        }
+    }
+
+    fn recalculate(&mut self) {}
 }
 
 impl Drop for Reactangle {
@@ -117,4 +139,3 @@ impl Drop for Reactangle {
         }
     }
 }
-
