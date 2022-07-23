@@ -1,5 +1,5 @@
+use crate::polygons::RGBA;
 use gl::types::GLfloat;
-use crate::polygons::ColorRGBA;
 
 #[derive(Copy, Clone)]
 pub enum VertexLocation {
@@ -16,6 +16,7 @@ pub struct Vertices {
 }
 
 impl Vertices {
+    #[must_use]
     pub fn new(vert_pos: Vec<f32>, colors_pos: Vec<f32>, textures_pos: Vec<f32>) -> Self {
         Vertices {
             vert_pos,
@@ -24,6 +25,7 @@ impl Vertices {
         }
     }
 
+    #[must_use]
     pub fn empty() -> Self {
         Vertices {
             vert_pos: vec![],
@@ -35,45 +37,52 @@ impl Vertices {
     pub fn set_position(&mut self, position: &[f32], location: VertexLocation) {
         match location {
             VertexLocation::Position => {
-                self.vert_pos = Vertices::build_data(self.vert_pos.clone(), position)
+                self.vert_pos = Vertices::build_data(self.vert_pos.clone(), position);
             }
             VertexLocation::Color => {
-                self.colors_pos = Vertices::build_data(self.colors_pos.clone(), position)
+                self.colors_pos = Vertices::build_data(self.colors_pos.clone(), position);
             }
             VertexLocation::Texture => {
-                self.textures_pos = Vertices::build_data(self.textures_pos.clone(), position)
+                self.textures_pos = Vertices::build_data(self.textures_pos.clone(), position);
             }
         }
     }
 
-    pub fn append_colors(&mut self, colors: &[ColorRGBA]) {
-        colors.iter().for_each(|color| self.colors_pos.extend_from_slice(&color.get_as_normalized_f32()));
+    pub fn append_colors(&mut self, colors: &[RGBA]) {
+        for color in colors.iter() {
+            self.colors_pos
+                .extend_from_slice(&color.get_as_normalized_f32());
+        }
     }
 
-    pub fn set_one_color_for_all_vert(&mut self, color: &ColorRGBA) {
+    pub fn set_one_color_for_all_vert(&mut self, color: &RGBA) {
         self.colors_pos.clear();
         let size = self.vert_pos.len() / 3;
         for _ in 0..size {
-            self.colors_pos.extend_from_slice(&color.get_as_normalized_f32());
+            self.colors_pos
+                .extend_from_slice(&color.get_as_normalized_f32());
         }
     }
 
+    #[must_use]
     pub fn is_triangle(&self) -> bool {
         self.vert_pos.len() == 9
     }
 
+    #[must_use]
     pub fn is_reactangle(&self) -> bool {
         self.vert_pos.len() == 12
     }
 
+    #[must_use]
     pub fn create_single_vertices_array(&self) -> Option<Vec<f32>> {
         if !self.is_valid_structure() {
             return None;
         }
 
         let mut result = Vec::with_capacity(self.sum_capacity());
-        let is_texture = self.textures_pos.len() != 0;
-        let is_color = self.colors_pos.len() != 0;
+        let is_texture = !self.textures_pos.is_empty();
+        let is_color = !self.colors_pos.is_empty();
         let vertices = self.vert_pos.len() / 3;
 
         let mut vert_pos_index = 0;
@@ -103,31 +112,31 @@ impl Vertices {
         Some(result)
     }
 
+    #[must_use]
     pub fn get_stride(&self) -> i32 {
-        let result;
-        if self.colors_pos.len() != 0 {
-            if self.textures_pos.len() != 0 {
+        let mut result = 3;
+        if !self.colors_pos.is_empty() {
+            result = 7;
+            if !self.textures_pos.is_empty() {
                 result = 9;
-            } else {
-                result = 7;
             }
-        } else {
-            result = 3;
         }
 
         (result * std::mem::size_of::<GLfloat>()) as i32
     }
 
+    #[must_use]
     pub fn sum_capacity(&self) -> usize {
         self.vert_pos.len() + self.colors_pos.len() + self.textures_pos.len()
     }
 
+    #[must_use]
     pub fn get_vertex_pos_len(&self) -> usize {
         self.vert_pos.len()
     }
 
     fn build_data(mut data: Vec<f32>, position: &[f32]) -> Vec<f32> {
-        if data.len() == 0 || data.len() < position.len() {
+        if data.is_empty() || data.len() < position.len() {
             data.clear();
             for item in position {
                 data.push(*item);
@@ -147,12 +156,12 @@ impl Vertices {
     fn is_valid_structure(&self) -> bool {
         let mut valid_colors = true;
         let mut valid_texture = true;
-        if self.colors_pos.len() != 0 {
-            let output = self.vert_pos.len() as f32 / self.colors_pos.len() as f32;
+        if !self.colors_pos.is_empty() {
+            let output: f32 = self.vert_pos.len() as f32 / self.colors_pos.len() as f32;
             valid_colors = output.to_bits() == (0.75_f32).to_bits();
         }
 
-        if self.textures_pos.len() != 0 {
+        if !self.textures_pos.is_empty() {
             let output = self.vert_pos.len() as f32 / self.textures_pos.len() as f32;
             valid_texture = output.to_bits() == (1.5_f32).to_bits();
         }
@@ -175,7 +184,11 @@ mod tests {
 
     #[test]
     fn test_create_vertices() {
-        let vertices = Vertices::new(vec![0.5, 0.5, 0.0], vec![1.0, 0.5, 0.0, 1.0], vec![1.0, 1.0]);
+        let vertices = Vertices::new(
+            vec![0.5, 0.5, 0.0],
+            vec![1.0, 0.5, 0.0, 1.0],
+            vec![1.0, 1.0],
+        );
         let size = vertices.sum_capacity();
         assert_eq!(9, size);
     }
@@ -196,8 +209,8 @@ mod tests {
         let pos = vec![-0.9, 0.0, 0.0, -0.5, 0.5, 0.0, -0.5, 0.0, 0.0];
         let color = vec![1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.5];
         let expected = vec![
-            -0.9, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, -0.5, 0.5, 0.0, 0.0, 1.0, 0.0, 1.0, -0.5, 0.0, 0.0, 0.0, 0.0,
-            1.0, 0.5
+            -0.9, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, -0.5, 0.5, 0.0, 0.0, 1.0, 0.0, 1.0, -0.5, 0.0, 0.0,
+            0.0, 0.0, 1.0, 0.5,
         ];
         vertices.set_position(&pos, VertexLocation::Position);
         vertices.set_position(&color, VertexLocation::Color);
@@ -213,8 +226,8 @@ mod tests {
         let color = vec![1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.5];
         let texture = vec![1.0, 0.0, 1.0, 0.0, 0.0, 0.0];
         let expected = vec![
-            -0.9, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, -0.5, 0.5, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, -0.5,
-            0.0, 0.0, 0.0, 0.0, 1.0, 0.5, 0.0, 0.0,
+            -0.9, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, -0.5, 0.5, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0,
+            0.0, -0.5, 0.0, 0.0, 0.0, 0.0, 1.0, 0.5, 0.0, 0.0,
         ];
         vertices.set_position(&pos, VertexLocation::Position);
         vertices.set_position(&color, VertexLocation::Color);
@@ -249,14 +262,14 @@ mod tests {
     #[test]
     fn test_append_colors() {
         let mut vertices = Vertices::empty();
-        let colors = [ColorRGBA::new(255, 0, 255, 1.0), ColorRGBA::new(0, 255, 0, 1.0)];
+        let colors = [RGBA::new(255, 0, 255, 1.0), RGBA::new(0, 255, 0, 1.0)];
         vertices.append_colors(&colors);
         assert_eq!(8, vertices.sum_capacity());
         assert_eq!(1_f32.to_bits(), vertices.colors_pos[0].to_bits());
         assert_eq!(1_f32.to_bits(), vertices.colors_pos[5].to_bits());
 
-        let secondColor = [ColorRGBA::new(255, 0, 255, 1.0)];
-        vertices.append_colors(&secondColor);
+        let second_color = [RGBA::new(255, 0, 255, 1.0)];
+        vertices.append_colors(&second_color);
         assert_eq!(12, vertices.sum_capacity());
         assert_eq!(1_f32.to_bits(), vertices.colors_pos[10].to_bits());
     }

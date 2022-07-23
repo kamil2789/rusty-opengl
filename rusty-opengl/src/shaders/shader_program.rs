@@ -1,9 +1,7 @@
+use crate::polygons::color::RGBA;
 use gl::types::GLuint;
 use std::ffi::CString;
 use std::ptr;
-use crate::polygons::color::ColorRGBA;
-use crate::shaders::utils::{get_current_dir_name, read_src_from_file};
-use std::path::Path;
 
 #[derive(Copy, Clone)]
 enum ShaderType {
@@ -92,7 +90,7 @@ impl ShaderProgram {
     ///
     /// Will panic if provided string is invalid
     #[must_use]
-    pub fn set_uniform4f_variable(&self, variable: &str, value: &ColorRGBA) -> bool {
+    pub fn set_uniform4f_variable(&self, variable: &str, value: &RGBA) -> bool {
         self.activate();
         unsafe {
             let c_variable = CString::new(variable).unwrap();

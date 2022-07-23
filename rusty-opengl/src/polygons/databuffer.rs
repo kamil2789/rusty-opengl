@@ -5,7 +5,7 @@ pub struct DataBuffer {
     vao: u32,
     vbo: u32,
     ebo: u32,
-    stride: i32
+    stride: i32,
 }
 
 impl DataBuffer {
@@ -15,7 +15,7 @@ impl DataBuffer {
             vao: 0,
             vbo: 0,
             ebo: 0,
-            stride: 0
+            stride: 0,
         }
     }
 
@@ -69,10 +69,7 @@ impl DataBuffer {
             gl::BufferData(
                 gl::ARRAY_BUFFER,
                 size.try_into().unwrap(),
-                raw_data
-                    .unwrap()
-                    .as_ptr()
-                    .cast::<std::ffi::c_void>(),
+                raw_data.unwrap().as_ptr().cast::<std::ffi::c_void>(),
                 gl::STATIC_DRAW,
             );
         }
@@ -85,13 +82,27 @@ impl DataBuffer {
         unsafe {
             gl::VertexAttribPointer(0, 3, gl::FLOAT, gl::FALSE, stride, ptr::null());
             gl::EnableVertexAttribArray(0);
-    
+
             let ptr = 3 * std::mem::size_of::<f32>();
-            gl::VertexAttribPointer(1, 4, gl::FLOAT, gl::FALSE, stride, ptr as *const std::ffi::c_void);
+            gl::VertexAttribPointer(
+                1,
+                4,
+                gl::FLOAT,
+                gl::FALSE,
+                stride,
+                ptr as *const std::ffi::c_void,
+            );
             gl::EnableVertexAttribArray(1);
 
             if stride == 9 {
-                gl::VertexAttribPointer(2, 2, gl::FLOAT, gl::FALSE, stride, (6 * std::mem::size_of::<f32>()) as *const std::ffi::c_void);
+                gl::VertexAttribPointer(
+                    2,
+                    2,
+                    gl::FLOAT,
+                    gl::FALSE,
+                    stride,
+                    (6 * std::mem::size_of::<f32>()) as *const std::ffi::c_void,
+                );
                 gl::EnableVertexAttribArray(2);
             }
         }
@@ -109,7 +120,7 @@ impl DataBuffer {
                 indices.as_ptr().cast::<std::ffi::c_void>(),
                 gl::STATIC_DRAW,
             );
-        }   
+        }
     }
 
     pub fn draw(&self) {
@@ -118,8 +129,7 @@ impl DataBuffer {
             if self.ebo > 0 {
                 gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER as u32, self.ebo);
                 gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_INT, std::ptr::null());
-            }
-            else {
+            } else {
                 gl::DrawArrays(gl::TRIANGLES, 0, 3);
             }
         }

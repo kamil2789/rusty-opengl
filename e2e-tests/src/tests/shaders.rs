@@ -1,6 +1,6 @@
-use crate::tools::utilities::get_path_to_shaders;
 use std::path::Path;
 
+use crate::tools::utilities::get_path_to_shaders;
 use rusty_opengl::shaders::shader_program::ShaderProgram;
 use rusty_opengl::shaders::utils::read_src_from_file;
 
