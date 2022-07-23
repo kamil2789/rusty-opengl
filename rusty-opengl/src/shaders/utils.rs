@@ -1,6 +1,29 @@
 use std::fs::OpenOptions;
 use std::io::Read;
 use std::path::Path;
+use std::env;
+use crate::shaders::shader_program::ShaderProgram;
+
+#[cfg(windows)]
+static DELIMETER: char = '\\';
+
+#[cfg(unix)]
+static DELIMETER: char = '/';
+
+pub fn create_shader_program(vertex_name: &str, fragment_name: &str) -> ShaderProgram {
+    let path_vertex_src = get_path_to_shaders() + "vertex/" + vertex_name;
+    let path_fragment_src = get_path_to_shaders() +  "fragment/" + fragment_name;
+
+    let vertex_src = read_src_from_file(Path::new(&path_vertex_src)).unwrap();
+    let fragment_src = read_src_from_file(Path::new(&path_fragment_src)).unwrap();
+    ShaderProgram::new(&vertex_src, &fragment_src)
+}
+
+pub fn get_current_dir_name() -> String {
+    let full_path = env::current_dir().unwrap();
+    let (_, dir) = full_path.to_str().unwrap().rsplit_once(DELIMETER).unwrap();
+    String::from(dir)
+}
 
 /// # Errors
 ///
@@ -25,6 +48,10 @@ pub fn read_src_from_file(path: &Path) -> Result<String, String> {
             path.to_str().unwrap()
         ))
     }
+}
+
+fn get_path_to_shaders() -> String {
+    String::from("rusty-opengl/src/shaders/")
 }
 
 #[cfg(test)]

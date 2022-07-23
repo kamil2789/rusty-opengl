@@ -1,27 +1,11 @@
-use gl::types::GLfloat;
 use crate::entities::Drawable;
-
-pub struct Vertices {
-    vert: [f32; 9],
-}
+use crate::polygons::Vertices;
+use gl::types::GLfloat;
 
 pub struct Triangle {
     vao: u32,
     vbo: u32,
-    pub vertices: Vertices,
-}
-
-impl Vertices {
-    const SIZE: usize = 9;
-
-    #[must_use]
-    pub fn new(data: [f32; 6]) -> Self {
-        Vertices {
-            vert: [
-                data[0], data[1], 0.0, data[2], data[3], 0.0, data[4], data[5], 0.0,
-            ],
-        }
-    }
+    vertices: Vertices,
 }
 
 impl Triangle {
@@ -69,10 +53,14 @@ impl Triangle {
         unsafe {
             gl::BufferData(
                 gl::ARRAY_BUFFER,
-                (Vertices::SIZE * std::mem::size_of::<GLfloat>())
+                (self.vertices.sum_capacity() * std::mem::size_of::<GLfloat>())
                     .try_into()
                     .unwrap(),
-                self.vertices.vert.as_ptr().cast::<std::ffi::c_void>(),
+                self.vertices
+                    .create_single_vertices_array()
+                    .unwrap()
+                    .as_ptr()
+                    .cast::<std::ffi::c_void>(),
                 gl::STATIC_DRAW,
             );
         }
@@ -91,6 +79,48 @@ impl Triangle {
             gl::EnableVertexAttribArray(0);
         }
     }
+
+    fn set_position_attribute_ptr(&self) {
+        unsafe {
+            gl::VertexAttribPointer(
+                0,
+                3,
+                gl::FLOAT,
+                gl::FALSE,
+                self.vertices.get_stride().try_into().unwrap(),
+                std::ptr::null(),
+            );
+            gl::EnableVertexAttribArray(0);
+        }
+    }
+
+    fn set_color_attribute_ptr(&self) {
+        unsafe {
+            gl::VertexAttribPointer(
+                1,
+                3,
+                gl::FLOAT,
+                gl::FALSE,
+                self.vertices.get_stride().try_into().unwrap(),
+                std::ptr::null(),
+            );
+            gl::EnableVertexAttribArray(1);
+        }
+    }
+
+    fn set_texture_attribute_ptr(&self) {
+        unsafe {
+            gl::VertexAttribPointer(
+                2,
+                2,
+                gl::FLOAT,
+                gl::FALSE,
+                self.vertices.get_stride().try_into().unwrap(),
+                std::ptr::null(),
+            );
+            gl::EnableVertexAttribArray(2);
+        }
+    }
 }
 
 impl Drawable for Triangle {
@@ -106,20 +136,7 @@ impl Drawable for Triangle {
     }
 
     fn set_vertices(&mut self, vertices: &[f32]) {
-        if vertices.len() >= 2 {
-            self.vertices.vert[0] = vertices[0];
-            self.vertices.vert[1] = vertices[1];
-        }
-
-        if vertices.len() >= 4 {
-            self.vertices.vert[2] = vertices[2];
-            self.vertices.vert[3] = vertices[3];
-        }
-
-        if vertices.len() >= 6 {
-            self.vertices.vert[4] = vertices[4];
-            self.vertices.vert[5] = vertices[5];
-        }
+        unimplemented!();
     }
 
     fn recalculate(&mut self) {

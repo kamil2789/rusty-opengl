@@ -1,6 +1,9 @@
 use gl::types::GLuint;
 use std::ffi::CString;
 use std::ptr;
+use crate::polygons::color::ColorRGBA;
+use crate::shaders::utils::{get_current_dir_name, read_src_from_file};
+use std::path::Path;
 
 #[derive(Copy, Clone)]
 enum ShaderType {
@@ -8,25 +11,11 @@ enum ShaderType {
     Fragment,
 }
 
-pub struct Color {
-    pub r: f32,
-    pub g: f32,
-    pub b: f32,
-    pub a: f32,
-}
-
 pub struct ShaderProgram {
     shader_program_id: u32,
     vert_src: String,
     frag_src: String,
     is_compiled: bool,
-}
-
-fn shader_type_as_gluint(shader_type: ShaderType) -> GLuint {
-    match shader_type {
-        ShaderType::Vertex => gl::VERTEX_SHADER,
-        ShaderType::Fragment => gl::FRAGMENT_SHADER,
-    }
 }
 
 impl ShaderProgram {
@@ -103,7 +92,7 @@ impl ShaderProgram {
     ///
     /// Will panic if provided string is invalid
     #[must_use]
-    pub fn set_uniform4f_variable(&self, variable: &str, value: &Color) -> bool {
+    pub fn set_uniform4f_variable(&self, variable: &str, value: &ColorRGBA) -> bool {
         self.activate();
         unsafe {
             let c_variable = CString::new(variable).unwrap();
@@ -114,7 +103,8 @@ impl ShaderProgram {
                 return false;
             }
 
-            gl::Uniform4f(uniform_location, value.r, value.g, value.b, value.a);
+            let color = value.get_as_normalized_f32();
+            gl::Uniform4f(uniform_location, color[0], color[1], color[2], color[3]);
             ShaderProgram::deactivate();
             true
         }
@@ -191,5 +181,12 @@ impl Drop for ShaderProgram {
         unsafe {
             gl::DeleteProgram(self.shader_program_id);
         }
+    }
+}
+
+fn shader_type_as_gluint(shader_type: ShaderType) -> GLuint {
+    match shader_type {
+        ShaderType::Vertex => gl::VERTEX_SHADER,
+        ShaderType::Fragment => gl::FRAGMENT_SHADER,
     }
 }

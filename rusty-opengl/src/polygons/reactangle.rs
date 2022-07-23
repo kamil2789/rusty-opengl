@@ -39,32 +39,27 @@ impl Reactangle {
     }
 
     unsafe fn init_array_buffer(&mut self) {
-        if self.vao == 0 || self.vbo == 0 || self.ebo == 0 {
-            gl::GenVertexArrays(1, &mut self.vao);
-            gl::GenBuffers(1, &mut self.vbo);
-            gl::GenBuffers(1, &mut self.ebo);
-            gl::BindVertexArray(self.vao);
+        self.generate_buffers();
 
-            self.set_array_buffer();
-            self.set_element_array_buffer();
+        self.set_array_buffer();
+        self.set_element_array_buffer();
+        self.set_attribute_ptr();
 
-            gl::VertexAttribPointer(
-                0,
-                3,
-                gl::FLOAT,
-                gl::FALSE,
-                (3 * std::mem::size_of::<GLfloat>()).try_into().unwrap(),
-                std::ptr::null(),
-            );
-            gl::EnableVertexAttribArray(0);
+        self.unbind();
+    }
 
-            gl::BindBuffer(gl::ARRAY_BUFFER, 0);
-            gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
-            gl::BindVertexArray(0);
+    fn generate_buffers(&mut self) {
+        unsafe {
+            if self.vao == 0 || self.vbo == 0 || self.ebo == 0 {
+                gl::GenVertexArrays(1, &mut self.vao);
+                gl::GenBuffers(1, &mut self.vbo);
+                gl::GenBuffers(1, &mut self.ebo);
+            }
         }
     }
 
     unsafe fn set_array_buffer(&mut self) {
+        gl::BindVertexArray(self.vao);
         gl::BindBuffer(gl::ARRAY_BUFFER as u32, self.vbo);
         gl::BufferData(
             gl::ARRAY_BUFFER as u32,
@@ -87,6 +82,28 @@ impl Reactangle {
             indices.as_ptr().cast::<std::ffi::c_void>(),
             gl::STATIC_DRAW,
         );
+    }
+
+    fn set_attribute_ptr(&self) {
+        unsafe {
+            gl::VertexAttribPointer(
+                0,
+                3,
+                gl::FLOAT,
+                gl::FALSE,
+                (3 * std::mem::size_of::<GLfloat>()).try_into().unwrap(),
+                std::ptr::null(),
+            );
+            gl::EnableVertexAttribArray(0);
+        }
+    }
+
+    fn unbind(&self) {
+        unsafe {
+            gl::BindBuffer(gl::ARRAY_BUFFER, 0);
+            gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
+            gl::BindVertexArray(0);
+        }
     }
 }
 
