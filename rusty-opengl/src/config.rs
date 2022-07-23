@@ -1,4 +1,6 @@
+use glfw;
 use glfw::Context;
+use gl;
 use std::sync::mpsc::Receiver;
 
 pub struct Window {

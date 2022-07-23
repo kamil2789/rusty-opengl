@@ -1,5 +1,4 @@
 use crate::polygons::color::RGBA;
-use gl::types::GLuint;
 use std::ffi::CString;
 use std::ptr;
 
@@ -115,8 +114,8 @@ impl ShaderProgram {
         }
     }
 
-    unsafe fn compile_shader(&self, shader_type: ShaderType) -> GLuint {
-        let shader = gl::CreateShader(shader_type_as_gluint(shader_type));
+    unsafe fn compile_shader(&self, shader_type: ShaderType) -> u32 {
+        let shader = gl::CreateShader(shader_type_as_id(shader_type));
         let c_str_vert = CString::new(self.match_shader_src(shader_type).as_bytes()).unwrap();
         gl::ShaderSource(shader, 1, &c_str_vert.as_ptr(), ptr::null());
         gl::CompileShader(shader);
@@ -129,7 +128,7 @@ impl ShaderProgram {
         }
     }
 
-    unsafe fn check_compile_status(shader_id: GLuint) -> bool {
+    unsafe fn check_compile_status(shader_id: u32) -> bool {
         let mut status = i32::from(gl::TRUE);
         let info_length: usize = 512;
         let mut info_log: Vec<u8> = Vec::with_capacity(info_length - 1);
@@ -151,7 +150,7 @@ impl ShaderProgram {
         }
     }
 
-    unsafe fn check_link_status(shader_program_id: GLuint) -> bool {
+    unsafe fn check_link_status(shader_program_id: u32) -> bool {
         let mut status = i32::from(gl::FALSE);
         let info_length: usize = 512;
         let mut info_log: Vec<u8> = Vec::with_capacity(info_length - 1);
@@ -182,7 +181,7 @@ impl Drop for ShaderProgram {
     }
 }
 
-fn shader_type_as_gluint(shader_type: ShaderType) -> GLuint {
+fn shader_type_as_id(shader_type: ShaderType) -> u32 {
     match shader_type {
         ShaderType::Vertex => gl::VERTEX_SHADER,
         ShaderType::Fragment => gl::FRAGMENT_SHADER,

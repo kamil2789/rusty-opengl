@@ -1,5 +1,4 @@
 use crate::polygons::RGBA;
-use gl::types::GLfloat;
 
 #[derive(Copy, Clone)]
 pub enum VertexLocation {
@@ -122,7 +121,7 @@ impl Vertices {
             }
         }
 
-        (result * std::mem::size_of::<GLfloat>()) as i32
+        (result * std::mem::size_of::<f32>()) as i32
     }
 
     #[must_use]

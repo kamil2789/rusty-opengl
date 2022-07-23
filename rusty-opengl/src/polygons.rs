@@ -1,7 +1,7 @@
 pub mod color;
-mod databuffer;
 pub mod texture;
 pub mod vertices;
+mod databuffer;
 
 use crate::polygons::color::RGBA;
 use crate::polygons::databuffer::DataBuffer;
@@ -21,18 +21,10 @@ pub struct PolygonBuilder {
 }
 
 impl Polygon {
-    //pub fn init(&mut self) {}
-
     pub fn draw(&self) {
         self.shader_program.activate();
         self.data_buffer.draw();
     }
-
-    // pub fn update(&mut self) {}
-
-    //pub fn set_color(&mut self, _color: &ColorRGBA) {}
-
-    //pub fn transform(&mut self) {}
 }
 
 //TODO IMPLEMENT ERROR HANDLING, CHANGE STRING TO ERR STRUCT
@@ -73,12 +65,6 @@ impl PolygonBuilder {
     pub fn set_vertices(&mut self, vertices: Vertices) {
         self.vertices = vertices;
     }
-
-    /* NOT SUPPORTED
-    pub fn set_texture(&mut self, texture: Texture) {
-        self.polygon.texture = Some(texture);
-    }
-    */
 
     fn set_same_color_for_all_vertices(&mut self) {
         self.vertices
