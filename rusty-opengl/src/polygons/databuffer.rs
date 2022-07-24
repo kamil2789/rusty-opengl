@@ -6,7 +6,6 @@ pub struct DataBuffer {
     vao: u32,
     vbo: u32,
     ebo: u32,
-    stride: i32,
 }
 
 impl DataBuffer {
@@ -15,8 +14,7 @@ impl DataBuffer {
         DataBuffer {
             vao: 0,
             vbo: 0,
-            ebo: 0,
-            stride: 0,
+            ebo: 0
         }
     }
 
@@ -30,6 +28,10 @@ impl DataBuffer {
         }
 
         self.set_attribute_ptr(data.get_stride());
+
+        if data.get_texture_pos_len() > 0 {
+            self.set_attribute_ptr_for_texture(data.get_stride());
+        }
         DataBuffer::unbind();
 
         Ok(())
@@ -79,7 +81,6 @@ impl DataBuffer {
     }
 
     fn set_attribute_ptr(&mut self, stride: i32) {
-        self.stride = stride;
         unsafe {
             gl::VertexAttribPointer(0, 3, gl::FLOAT, gl::FALSE, stride, ptr::null());
             gl::EnableVertexAttribArray(0);
@@ -94,18 +95,20 @@ impl DataBuffer {
                 ptr as *const std::ffi::c_void,
             );
             gl::EnableVertexAttribArray(1);
+        }
+    }
 
-            if stride == 9 {
-                gl::VertexAttribPointer(
-                    2,
-                    2,
-                    gl::FLOAT,
-                    gl::FALSE,
-                    stride,
-                    (6 * std::mem::size_of::<f32>()) as *const std::ffi::c_void,
-                );
-                gl::EnableVertexAttribArray(2);
-            }
+    fn set_attribute_ptr_for_texture(&mut self, stride: i32) {
+        unsafe {
+            gl::VertexAttribPointer(
+                2,
+                2,
+                gl::FLOAT,
+                gl::FALSE,
+                stride,
+                (7 * std::mem::size_of::<f32>()) as *const std::ffi::c_void,
+            );
+            gl::EnableVertexAttribArray(2);
         }
     }
 

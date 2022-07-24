@@ -134,6 +134,11 @@ impl Vertices {
         self.vert_pos.len()
     }
 
+    #[must_use]
+    pub fn get_texture_pos_len(&self) -> usize {
+        self.textures_pos.len()
+    }
+
     fn build_data(mut data: Vec<f32>, position: &[f32]) -> Vec<f32> {
         if data.is_empty() || data.len() < position.len() {
             data.clear();

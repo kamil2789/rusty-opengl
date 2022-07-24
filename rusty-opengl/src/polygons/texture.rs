@@ -1,5 +1,6 @@
 use std::path::Path;
 
+#[derive(Clone)]
 pub struct Texture {
     id: u32,
     width: u32,
@@ -13,28 +14,27 @@ impl Texture {
     /// Will panic if provided path to the image is invalid
     #[must_use]
     pub fn new(image_path: &Path) -> Self {
-        unsafe {
-            let mut id = 0;
-            gl::GenTextures(1, &mut id);
-            if let Ok(img) = image::open(&image_path) {
-                Texture {
-                    id,
-                    width: img.width(),
-                    height: img.height(),
-                    data: img.into_bytes(),
-                }
-            } else {
-                panic!(
-                    "Failed to load texture at path {}",
-                    image_path.to_str().unwrap()
-                );
+        if let Ok(img) = image::open(&image_path) {
+            Texture {
+                id: 0,
+                width: img.width(),
+                height: img.height(),
+                data: img.into_bytes(),
             }
+        } else {
+            panic!(
+                "Failed to load texture at path {}",
+                image_path.to_str().unwrap()
+            );
         }
     }
 
     /// # Panics
-    pub fn set_options(&self) {
+    pub fn set_options(&mut self) {
         unsafe {
+            //TMP
+            gl::GenTextures(1, &mut self.id);
+            //TMP
             gl::BindTexture(gl::TEXTURE_2D, self.id);
             gl::TexParameteri(
                 gl::TEXTURE_2D,
@@ -62,8 +62,11 @@ impl Texture {
     /// # Panics
     ///
     /// Will panic if provided image is invalid
-    pub fn init(&self) {
+    pub fn init(&mut self) {
         unsafe {
+            if self.id == 0 {
+                gl::GenTextures(1, &mut self.id);
+            }
             gl::TexImage2D(
                 gl::TEXTURE_2D,
                 0,
