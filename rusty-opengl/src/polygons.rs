@@ -82,11 +82,17 @@ impl PolygonBuilder {
                 .set_one_color_for_all_vert(&RGBA::from_hex(0xFF_FF_FF_FF));
         }
 
-        if self.texture.is_some() {
-            self.vertices.set_position(
-                &[1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0],
-                VertexLocation::Texture,
-            );
+        if self.texture.is_some() && !self.vertices.is_texture() {
+            if self.vertices.is_triangle() {
+                self.vertices.set_position(
+                    &[1.0, 1.0, 1.0, 0.0, 0.0, 0.0],
+                    VertexLocation::Texture);
+            }
+            else if self.vertices.is_reactangle() {
+                self.vertices.set_position(
+                    &[1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+                    VertexLocation::Texture);
+            }
         }
     }
 

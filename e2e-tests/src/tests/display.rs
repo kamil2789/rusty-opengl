@@ -110,3 +110,27 @@ pub fn test_draw_red_reactangle_with_texture(glfw: &mut Glfw, window: &mut Windo
 
     check_images_equality(window, "red_reactangle_with_texture.png")
 }
+
+pub fn test_draw_triangle_with_texture_only_vertices(glfw: &mut Glfw, window: &mut Window) -> bool {
+    let mut pol_builder = PolygonBuilder::new();
+    let vertices = Vertices::new(
+        vec![0.5, 0.5, 0.0, 0.5, -0.5, 0.0, -0.5, -0.5, 0.0],
+        vec![0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0],
+        vec![1.0, 1.0, 1.0, 0.0, 0.0, 0.0],
+    );
+
+    let texture = Texture::new(Path::new("e2e-tests/assets/texture/container.jpg"));
+    texture.set_filtering(Filtering::Nearest);
+    texture.set_wrapping(Wrapping::Repeat);
+    pol_builder.set_vertices(vertices);
+    pol_builder.set_texture(texture);
+    let reactangle = pol_builder.build().unwrap();
+
+    set_background_color(0.1, 0.2, 0.2);
+
+    reactangle.draw();
+    window.swap_buffers();
+    glfw.poll_events();
+
+    check_images_equality(window, "triangle_with_texture_only_vertices.png")
+}
