@@ -116,9 +116,10 @@ impl Vertices {
         let mut result = 3;
         if !self.colors_pos.is_empty() {
             result = 7;
-            if !self.textures_pos.is_empty() {
-                result = 9;
-            }
+        }
+
+        if !self.textures_pos.is_empty() {
+            result = 9;
         }
 
         (result * std::mem::size_of::<f32>()) as i32
@@ -130,13 +131,8 @@ impl Vertices {
     }
 
     #[must_use]
-    pub fn get_vertex_pos_len(&self) -> usize {
-        self.vert_pos.len()
-    }
-
-    #[must_use]
-    pub fn get_texture_pos_len(&self) -> usize {
-        self.textures_pos.len()
+    pub fn is_texture(&self) -> bool {
+        !self.textures_pos.is_empty()
     }
 
     fn build_data(mut data: Vec<f32>, position: &[f32]) -> Vec<f32> {

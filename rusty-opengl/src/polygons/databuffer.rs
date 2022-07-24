@@ -14,7 +14,7 @@ impl DataBuffer {
         DataBuffer {
             vao: 0,
             vbo: 0,
-            ebo: 0
+            ebo: 0,
         }
     }
 
@@ -27,14 +27,26 @@ impl DataBuffer {
             self.set_attribute_element_array_buffer();
         }
 
-        self.set_attribute_ptr(data.get_stride());
-
-        if data.get_texture_pos_len() > 0 {
-            self.set_attribute_ptr_for_texture(data.get_stride());
+        DataBuffer::set_position_attribute_ptr(data.get_stride());
+        DataBuffer::set_color_attribute_ptr(data.get_stride());
+        if data.is_texture() {
+            DataBuffer::set_attribute_ptr_for_texture(data.get_stride());
         }
-        DataBuffer::unbind();
 
+        DataBuffer::unbind();
         Ok(())
+    }
+
+    pub fn draw(&self) {
+        unsafe {
+            gl::BindVertexArray(self.vao);
+            if self.ebo > 0 {
+                gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER as u32, self.ebo);
+                gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_INT, std::ptr::null());
+            } else {
+                gl::DrawArrays(gl::TRIANGLES, 0, 3);
+            }
+        }
     }
 
     fn generate_buffers(&mut self) {
@@ -51,13 +63,6 @@ impl DataBuffer {
             if self.ebo == 0 {
                 gl::GenBuffers(1, &mut self.ebo);
             }
-        }
-    }
-
-    fn bind(&self) {
-        unsafe {
-            gl::BindVertexArray(self.vao);
-            gl::BindBuffer(gl::ARRAY_BUFFER, self.vbo);
         }
     }
 
@@ -80,38 +85,6 @@ impl DataBuffer {
         Ok(())
     }
 
-    fn set_attribute_ptr(&mut self, stride: i32) {
-        unsafe {
-            gl::VertexAttribPointer(0, 3, gl::FLOAT, gl::FALSE, stride, ptr::null());
-            gl::EnableVertexAttribArray(0);
-
-            let ptr = 3 * std::mem::size_of::<f32>();
-            gl::VertexAttribPointer(
-                1,
-                4,
-                gl::FLOAT,
-                gl::FALSE,
-                stride,
-                ptr as *const std::ffi::c_void,
-            );
-            gl::EnableVertexAttribArray(1);
-        }
-    }
-
-    fn set_attribute_ptr_for_texture(&mut self, stride: i32) {
-        unsafe {
-            gl::VertexAttribPointer(
-                2,
-                2,
-                gl::FLOAT,
-                gl::FALSE,
-                stride,
-                (7 * std::mem::size_of::<f32>()) as *const std::ffi::c_void,
-            );
-            gl::EnableVertexAttribArray(2);
-        }
-    }
-
     fn set_attribute_element_array_buffer(&mut self) {
         let indices: [u32; 6] = [0, 1, 3, 1, 2, 3];
         unsafe {
@@ -127,15 +100,46 @@ impl DataBuffer {
         }
     }
 
-    pub fn draw(&self) {
+    fn set_position_attribute_ptr(stride: i32) {
+        unsafe {
+            gl::VertexAttribPointer(0, 3, gl::FLOAT, gl::FALSE, stride, ptr::null());
+            gl::EnableVertexAttribArray(0);
+        }
+    }
+
+    fn set_color_attribute_ptr(stride: i32) {
+        unsafe {
+            let ptr = 3 * std::mem::size_of::<f32>();
+            gl::VertexAttribPointer(
+                1,
+                4,
+                gl::FLOAT,
+                gl::FALSE,
+                stride,
+                ptr as *const std::ffi::c_void,
+            );
+            gl::EnableVertexAttribArray(1);
+        }
+    }
+
+    fn set_attribute_ptr_for_texture(stride: i32) {
+        unsafe {
+            gl::VertexAttribPointer(
+                2,
+                2,
+                gl::FLOAT,
+                gl::FALSE,
+                stride,
+                (7 * std::mem::size_of::<f32>()) as *const std::ffi::c_void,
+            );
+            gl::EnableVertexAttribArray(2);
+        }
+    }
+
+    fn bind(&self) {
         unsafe {
             gl::BindVertexArray(self.vao);
-            if self.ebo > 0 {
-                gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER as u32, self.ebo);
-                gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_INT, std::ptr::null());
-            } else {
-                gl::DrawArrays(gl::TRIANGLES, 0, 3);
-            }
+            gl::BindBuffer(gl::ARRAY_BUFFER, self.vbo);
         }
     }
 
