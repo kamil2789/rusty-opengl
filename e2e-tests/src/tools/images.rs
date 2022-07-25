@@ -27,14 +27,8 @@ pub fn save_screen_as_img_png(window: &Window, image_name: &str) {
         gl::PixelStorei(gl::PACK_ALIGNMENT, 4);
         gl::ReadBuffer(gl::FRONT);
 
-        let nr_channels = 3;
-        let mut stride = nr_channels * width;
-        if stride % 4 == 0 {
-            stride += 4 - (stride % 4);
-        }
-
-        let buffer_size: usize = (stride * height).try_into().unwrap();
-        let mut buffer: Vec<u8> = vec![0; buffer_size - 2400];
+        let buffer_size: usize = (width * height * 3).try_into().unwrap();
+        let mut buffer: Vec<u8> = vec![0; buffer_size];
 
         gl::ReadPixels(
             0,

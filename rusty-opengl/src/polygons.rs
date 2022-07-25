@@ -1,9 +1,8 @@
-pub mod color;
 mod databuffer;
 pub mod texture;
 pub mod vertices;
 
-use crate::polygons::color::RGBA;
+use crate::color::RGBA;
 use crate::polygons::databuffer::DataBuffer;
 use crate::polygons::texture::Texture;
 use crate::polygons::vertices::{VertexLocation, Vertices};

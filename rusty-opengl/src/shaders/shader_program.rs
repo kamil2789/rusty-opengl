@@ -1,4 +1,4 @@
-use crate::polygons::color::RGBA;
+use crate::color::RGBA;
 use std::ffi::CString;
 use std::ptr;
 
