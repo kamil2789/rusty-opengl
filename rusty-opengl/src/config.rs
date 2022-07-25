@@ -1,10 +1,17 @@
 use gl;
 use glfw;
 use glfw::Context;
+use std::rc::Rc;
 use std::sync::mpsc::Receiver;
+
+pub struct Resolution {
+    pub width: u32,
+    pub height: u32,
+}
 
 pub struct Window {
     window: glfw::Window,
+    resolution: Rc<Resolution>,
 }
 
 pub struct Glfw {
@@ -27,15 +34,19 @@ impl Glfw {
     #[must_use]
     pub fn create_window(
         &self,
-        width: u32,
-        height: u32,
+        resolution: Rc<Resolution>,
         window_name: &str,
     ) -> (Window, WindowEvents) {
         let (window, events) = self
             .glfw
-            .create_window(width, height, window_name, glfw::WindowMode::Windowed)
+            .create_window(
+                resolution.width,
+                resolution.height,
+                window_name,
+                glfw::WindowMode::Windowed,
+            )
             .expect("Failed to create GLFW window");
-        (Window { window }, WindowEvents { events })
+        (Window { window, resolution }, WindowEvents { events })
     }
 
     pub fn poll_events(&mut self) {
@@ -77,6 +88,10 @@ impl Window {
     pub fn get_framebuffer_size(&self) -> (i32, i32) {
         self.window.get_framebuffer_size()
     }
+
+    pub fn get_resolution(&self) -> Rc<Resolution> {
+        self.resolution.clone()
+    }
 }
 
 #[cfg(test)]
@@ -86,7 +101,11 @@ mod tests {
     #[test]
     fn test_config_initial_configuration() {
         let glfw: Glfw = Default::default();
-        let (mut window, _events) = glfw.create_window(800, 600, "learn opengl");
+        let resolution = Rc::new(Resolution {
+            width: 800,
+            height: 600,
+        });
+        let (mut window, _events) = glfw.create_window(resolution.clone(), "learn opengl");
         window.set_current();
         window.load_opengl_func_ptr();
     }

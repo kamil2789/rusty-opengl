@@ -1,10 +1,10 @@
 use crate::tools::images::check_images_equality;
+use rusty_opengl::circle::Circle;
 use rusty_opengl::color::RGBA;
 use rusty_opengl::config::{set_background_color, Glfw, Window};
 use rusty_opengl::polygons::texture::{Filtering, Texture, Wrapping};
 use rusty_opengl::polygons::vertices::Vertices;
 use rusty_opengl::polygons::PolygonBuilder;
-use rusty_opengl::circle::Circle;
 use std::path::Path;
 
 pub fn test_draw_two_triangles(glfw: &mut Glfw, window: &mut Window) -> bool {
@@ -149,4 +149,16 @@ pub fn test_draw_red_circle(glfw: &mut Glfw, window: &mut Window) -> bool {
     check_images_equality(window, "red_circle.png")
 }
 
+pub fn test_draw_green_circle_adjusted(glfw: &mut Glfw, window: &mut Window) -> bool {
+    let mut circle = Circle::new((0_f32, 0_f32), 0.3_f32, RGBA::from_hex(0x00_FF_00_FF), None);
+    circle.adjust_radius(window.get_resolution());
+    circle.init();
 
+    set_background_color(0.1, 0.2, 0.2);
+
+    circle.draw();
+    window.swap_buffers();
+    glfw.poll_events();
+
+    check_images_equality(window, "green_adjusted_circle.png")
+}

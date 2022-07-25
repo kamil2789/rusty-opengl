@@ -1,20 +1,23 @@
 use crate::color::RGBA;
-use crate::shaders::utils::create_shader_program;
+use crate::config::Resolution;
 use crate::shaders::shader_program::ShaderProgram;
+use crate::shaders::utils::create_shader_program;
+use std::rc::Rc;
 
 pub struct Circle {
     center: (f32, f32),
-    radius: f32,
+    radius_width: f32,
+    radius_height: f32,
     color: RGBA,
     segments: u16,
-    circle_data_buffer: Option<CircleDataBuffer>
+    circle_data_buffer: Option<CircleDataBuffer>,
 }
 
 struct CircleDataBuffer {
     vao: u32,
     vbo: u32,
     segments: u16,
-    shader: ShaderProgram
+    shader: ShaderProgram,
 }
 
 impl Circle {
@@ -27,7 +30,8 @@ impl Circle {
 
         Circle {
             center,
-            radius,
+            radius_width: radius,
+            radius_height: radius,
             color,
             segments: segments_value,
             circle_data_buffer: None,
@@ -44,8 +48,28 @@ impl Circle {
         if self.circle_data_buffer.is_none() {
             self.circle_data_buffer = Some(CircleDataBuffer::new(self.segments));
             let raw_data = self.calculate_raw_data();
-            self.circle_data_buffer.as_mut().unwrap().init(&raw_data, &self.color);
+            self.circle_data_buffer
+                .as_mut()
+                .unwrap()
+                .init(&raw_data, &self.color);
         }
+    }
+
+    pub fn adjust_radius(&mut self, resolution: Rc<Resolution>) {
+        if resolution.width == resolution.height {
+            return;
+        }
+
+        match resolution.width > resolution.height {
+            true => {
+                self.radius_width =
+                    resolution.height as f32 * self.radius_width / resolution.width as f32
+            }
+            false => {
+                self.radius_height =
+                    resolution.width as f32 * self.radius_height / resolution.height as f32
+            }
+        };
     }
 
     fn calculate_raw_data(&self) -> Vec<f32> {
@@ -88,8 +112,7 @@ impl Circle {
     fn normalized_radius(radius: f32) -> f32 {
         if radius < 0_f32 {
             return 0_f32;
-        }
-        else if radius > 1_f32 {
+        } else if radius > 1_f32 {
             return 1_f32;
         }
 
@@ -104,8 +127,8 @@ impl Circle {
         let angle = 360_f32 / f32::from(self.segments);
         let mut current_angle = angle;
         for _ in 0..self.segments {
-            let x = self.radius * f32::sin(f32::to_radians(current_angle));
-            let y = self.radius * f32::cos(f32::to_radians(current_angle));
+            let x = self.radius_width * f32::sin(f32::to_radians(current_angle));
+            let y = self.radius_height * f32::cos(f32::to_radians(current_angle));
 
             buffer.append(&mut vec![x, y, 0.0]);
             current_angle += angle;
@@ -117,7 +140,12 @@ impl Circle {
 impl CircleDataBuffer {
     pub fn new(segments: u16) -> Self {
         let shader = create_shader_program("colored_circle.vert", "basic_colored.frag");
-        CircleDataBuffer{vao: 0, vbo: 0, shader, segments}
+        CircleDataBuffer {
+            vao: 0,
+            vbo: 0,
+            shader,
+            segments,
+        }
     }
 
     pub fn init(&mut self, data: &[f32], color: &RGBA) {
@@ -225,7 +253,12 @@ mod tests {
 
     #[test]
     fn test_calculate_raw_data_no_segments() {
-        let circle = Circle::new((0.5_f32, 0.4_f32), 0.2_f32, RGBA::from_hex(0x00_00_FF_FF), Some(0));
+        let circle = Circle::new(
+            (0.5_f32, 0.4_f32),
+            0.2_f32,
+            RGBA::from_hex(0x00_00_FF_FF),
+            Some(0),
+        );
         let raw_data = circle.calculate_raw_data();
         let expected = vec![0_f32, 0_f32, 1_f32, 1_f32, 0.5_f32, 0.4_f32, 0_f32];
         assert_eq!(expected, raw_data);
@@ -233,7 +266,12 @@ mod tests {
 
     #[test]
     fn test_calculate_raw_data_six_segments() {
-        let circle = Circle::new((0.5_f32, 0.4_f32), 0.2_f32, RGBA::from_hex(0x00_00_FF_FF), Some(6));
+        let circle = Circle::new(
+            (0.5_f32, 0.4_f32),
+            0.2_f32,
+            RGBA::from_hex(0x00_00_FF_FF),
+            Some(6),
+        );
         let raw_data = circle.calculate_raw_data();
         let triangles = 6;
         let expected_len = triangles * 3 + 7;
@@ -242,7 +280,12 @@ mod tests {
 
     #[test]
     fn test_calculate_raw_data_default_segments() {
-        let circle = Circle::new((0.5_f32, 0.4_f32), 0.2_f32, RGBA::from_hex(0x00_00_FF_FF), None);
+        let circle = Circle::new(
+            (0.5_f32, 0.4_f32),
+            0.2_f32,
+            RGBA::from_hex(0x00_00_FF_FF),
+            None,
+        );
         let raw_data = circle.calculate_raw_data();
         let expected_len = Circle::DEFAULT_SEGMENTS as usize * 3 + 7;
         assert_eq!(expected_len, raw_data.len());
