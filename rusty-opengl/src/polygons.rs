@@ -84,14 +84,13 @@ impl PolygonBuilder {
 
         if self.texture.is_some() && !self.vertices.is_texture() {
             if self.vertices.is_triangle() {
-                self.vertices.set_position(
-                    &[1.0, 1.0, 1.0, 0.0, 0.0, 0.0],
-                    VertexLocation::Texture);
-            }
-            else if self.vertices.is_reactangle() {
+                self.vertices
+                    .set_position(&[1.0, 1.0, 1.0, 0.0, 0.0, 0.0], VertexLocation::Texture);
+            } else if self.vertices.is_reactangle() {
                 self.vertices.set_position(
                     &[1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0],
-                    VertexLocation::Texture);
+                    VertexLocation::Texture,
+                );
             }
         }
     }

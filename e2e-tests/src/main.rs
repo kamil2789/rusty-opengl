@@ -7,8 +7,8 @@ use crate::tests::display::test_draw_reactangle;
 //use crate::tests::display::test_draw_triangle_with_color_from_uniform;
 use crate::tests::display::test_draw_reactangle_with_texture;
 use crate::tests::display::test_draw_red_reactangle_with_texture;
-use crate::tests::display::test_draw_two_triangles;
 use crate::tests::display::test_draw_triangle_with_texture_only_vertices;
+use crate::tests::display::test_draw_two_triangles;
 use crate::tests::shaders::test_shader_program_compilation;
 use rusty_opengl::config::Glfw;
 

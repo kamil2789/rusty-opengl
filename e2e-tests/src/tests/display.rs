@@ -1,7 +1,7 @@
 use crate::tools::images::check_images_equality;
 use rusty_opengl::config::{set_background_color, Glfw, Window};
 use rusty_opengl::polygons::color::RGBA;
-use rusty_opengl::polygons::texture::{Texture, Wrapping, Filtering};
+use rusty_opengl::polygons::texture::{Filtering, Texture, Wrapping};
 use rusty_opengl::polygons::vertices::Vertices;
 use rusty_opengl::polygons::PolygonBuilder;
 use std::path::Path;

@@ -6,3 +6,5 @@ Cargo.lock
 
 tests_tmp
 test_result*
+
+.vscode
